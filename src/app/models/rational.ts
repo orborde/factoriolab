@@ -133,9 +133,10 @@ export class Rational {
 
     if (this.isInteger()) return this;
 
-    const x = this.p % this.q;
-    const y = Number(x) / Number(this.q);
-    if (Math.abs(y) >= 0.5) return this.ceil();
+    // Use pure BigInt arithmetic to avoid precision loss
+    // Check if |remainder/q| >= 0.5, equivalent to |remainder| * 2 >= q
+    const remainder = this.p % this.q;
+    if (abs(remainder) * 2n >= this.q) return this.ceil();
     return this.floor();
   }
 
@@ -144,13 +145,36 @@ export class Rational {
   }
 
   pow(exponent: number): Rational {
+    // For integer exponents, use exact BigInt arithmetic
+    if (Number.isInteger(exponent)) {
+      if (exponent === 0) return one;
+      if (exponent === 1) return this;
+
+      const n = BigInt(Math.abs(exponent));
+      const resultP = this.p ** n;
+      const resultQ = this.q ** n;
+
+      // For negative exponents, invert the result
+      if (exponent < 0) return new Rational(resultQ, resultP);
+      return new Rational(resultP, resultQ);
+    }
+
+    // For non-integer exponents (e.g., overclocking formulas),
+    // we must use floating-point approximation
     const num = this.toNumber();
     const result = Math.pow(num, exponent);
     return rational(result);
   }
 
+  /**
+   * Returns the rational in its simplest form.
+   * Since the constructor already reduces fractions using GCD,
+   * this just returns `this` to maintain precision.
+   * Previously this converted to float and back, which lost precision
+   * for large numerators/denominators.
+   */
   simplify(): Rational {
-    return rational(this.toNumber());
+    return this;
   }
 
   toNumber(): number {
