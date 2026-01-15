@@ -156,12 +156,65 @@ describe('Rational', () => {
       expect(rational(2n, 3n).round()).toEqual(rational(1n));
       expect(rational(4n, 3n).round()).toEqual(rational(1n));
     });
+
+    it('should handle large BigInt values without precision loss', () => {
+      // Values beyond Number.MAX_SAFE_INTEGER
+      const large = new Rational(
+        18014398509481985n, // > 2^53
+        36028797018963968n, // > 2^54
+      );
+      // 18014398509481985 / 36028797018963968 ≈ 0.5000000000000001
+      // Should round up to 1
+      expect(large.round()).toEqual(rational(1n));
+    });
   });
 
   describe('abs', () => {
     it('should deterine absolute value', () => {
       expect(rational(2).abs()).toEqual(new Rational(2n));
       expect(rational(-2).abs()).toEqual(new Rational(2n));
+    });
+  });
+
+  describe('pow', () => {
+    it('should handle integer exponents exactly', () => {
+      const r = new Rational(2n, 3n);
+      expect(r.pow(0)).toEqual(rational(1n));
+      expect(r.pow(1)).toEqual(r);
+      expect(r.pow(2)).toEqual(new Rational(4n, 9n));
+      expect(r.pow(3)).toEqual(new Rational(8n, 27n));
+    });
+
+    it('should handle negative integer exponents', () => {
+      const r = new Rational(2n, 3n);
+      expect(r.pow(-1)).toEqual(new Rational(3n, 2n));
+      expect(r.pow(-2)).toEqual(new Rational(9n, 4n));
+    });
+
+    it('should handle non-integer exponents via approximation', () => {
+      const r = new Rational(4n);
+      const result = r.pow(0.5);
+      // sqrt(4) = 2, should be close
+      expect(result.toNumber()).toBeCloseTo(2, 5);
+    });
+  });
+
+  describe('simplify', () => {
+    it('should preserve precision for large fractions', () => {
+      // Fraction from issue #1786 that was losing precision
+      const large = new Rational(
+        112133105561230246200717007n,
+        112133105561231129795824320n,
+      );
+      const simplified = large.simplify();
+      // Should return the exact same values, not a float approximation
+      expect(simplified.p).toEqual(large.p);
+      expect(simplified.q).toEqual(large.q);
+    });
+
+    it('should return the same instance', () => {
+      const r = new Rational(1n, 3n);
+      expect(r.simplify()).toBe(r);
     });
   });
 

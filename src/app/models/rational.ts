@@ -173,7 +173,7 @@ export class Rational {
    * Previously this converted to float and back, which lost precision
    * for large numerators/denominators.
    */
-  simplify(): Rational {
+  simplify(): this {
     return this;
   }
 
