@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { rational } from '~/models/rational';
+import { RecipeSettings } from '~/models/settings/recipe-settings';
 import { Step } from '~/models/step';
 import { ItemId, Mocks, RecipeId, TestModule } from '~/tests';
 
@@ -37,10 +38,22 @@ describe('ExportService', () => {
   describe('stepToJson', () => {
     const itemId = ItemId.IronPlate;
     const recipeId = RecipeId.IronPlate;
+    const recipeSettings: RecipeSettings = {
+      machineId: ItemId.ElectricFurnace,
+      modules: [{ count: rational(2n), id: ItemId.ProductivityModule3 }],
+      beacons: [
+        {
+          count: rational(8n),
+          id: ItemId.Beacon,
+          modules: [{ id: ItemId.SpeedModule3, count: rational(2n) }],
+        },
+      ],
+    };
     const inStep: Step = {
       id: '0',
       itemId: ItemId.IronOre,
       recipeId: RecipeId.IronPlate,
+      recipeSettings,
       parents: { ['1']: rational.one },
     };
     const fullStep: Step = {
@@ -56,11 +69,13 @@ describe('ExportService', () => {
       outputs: { [itemId]: rational(8n) },
       parents: { ['1']: rational(9n) },
       recipeId,
+      recipeSettings,
     };
     const minStep: Step = {
       id: '2',
       itemId: itemId,
       recipeId: recipeId,
+      recipeSettings,
     };
 
     it('should fill in all fields', () => {

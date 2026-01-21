@@ -339,29 +339,6 @@ beforeAll(() => {
   item1 = dataset.itemEntities[dataset.itemIds[0]];
   item2 = dataset.itemEntities[dataset.itemIds[1]];
   recipe1 = dataset.recipeEntities[dataset.recipeIds[0]];
-  step1 = {
-    id: `${item1.id}.${item1.id}`,
-    itemId: item1.id,
-    recipeId: item1.id,
-    items: objective1.value,
-    belts: rational(1n, 2n),
-    wagons: rational(2n),
-    machines: rational.one,
-    power: rational.one,
-    pollution: rational.one,
-  };
-  step2 = {
-    id: `${item2.id}.${item2.id}`,
-    itemId: item2.id,
-    recipeId: item2.id,
-    items: objective2.value,
-    belts: rational.one,
-    wagons: rational.one,
-    machines: rational(2n),
-    power: rational.zero,
-    pollution: rational.zero,
-  };
-  steps = [step1, step2];
   itemsState = {};
   for (const item of dataset.itemIds.map((i) => dataset.itemEntities[i]))
     itemsState[item.id] = spread(itemSettings1);
@@ -394,6 +371,31 @@ beforeAll(() => {
     );
   };
   recipesStateInitial = getRecipesState();
+  step1 = {
+    id: `${item1.id}.${item1.id}`,
+    itemId: item1.id,
+    recipeId: item1.id,
+    recipeSettings: recipesStateInitial[item1.id],
+    items: objective1.value,
+    belts: rational(1n, 2n),
+    wagons: rational(2n),
+    machines: rational.one,
+    power: rational.one,
+    pollution: rational.one,
+  };
+  step2 = {
+    id: `${item2.id}.${item2.id}`,
+    itemId: item2.id,
+    recipeId: item2.id,
+    recipeSettings: recipesStateInitial[item2.id],
+    items: objective2.value,
+    belts: rational.one,
+    wagons: rational.one,
+    machines: rational(2n),
+    power: rational.zero,
+    pollution: rational.zero,
+  };
+  steps = [step1, step2];
   getAdjustedDataset = (): AdjustedDataset => {
     return recipeSvc.adjustDataset(
       recipesStateInitial,

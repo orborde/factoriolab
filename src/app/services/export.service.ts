@@ -66,7 +66,6 @@ export class ExportService {
   settingsSvc = inject(SettingsService);
 
   itemsState = this.itemsSvc.settings;
-  recipesState = this.recipesSvc.settings;
   columnsState = this.settingsSvc.columnsState;
   data = this.recipesSvc.adjustedDataset;
 
@@ -96,7 +95,6 @@ export class ExportService {
   stepToJson(step: Step, steps: Step[]): StepExport {
     const columns = this.columnsState();
     const itemsState = this.itemsState();
-    const recipesState = this.recipesState();
     const data = this.data();
     const exp: StepExport = {};
     if (step.itemId != null) {
@@ -123,7 +121,7 @@ export class ExportService {
       exp.Recipe = step.recipeId;
 
       const recipe = data.adjustedRecipe[step.recipeId];
-      const recipeSettings = recipesState[step.recipeId];
+      const recipeSettings = step.recipeSettings;
       const inputs = Object.keys(recipe.in)
         .map((i) => {
           const inStep = steps.find((s) => s.itemId === i);
